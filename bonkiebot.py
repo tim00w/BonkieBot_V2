@@ -65,7 +65,7 @@ def set_value(bot, update):
     elif chat_state == AWAIT_INPUT and chat_context == user_id:
         # this is unfinished (needs a line of code)
 
-def getToken(fileName='TOKEN.txt'):
+def getToken(fileName='TOKEN.log'):
     with open(fileName, 'r') as f:
         tokenStr = f.read()
     return tokenStr
