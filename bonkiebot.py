@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-TOKEN = '192950506:AAH82PqBpMS2iISI2PZ3d9b3rF_00cnGzGc'
+TOKEN = getToken()
 
 
 class BonkieBot:
@@ -63,8 +63,12 @@ def set_value(bot, update):
 
     # if we are waiting for input and the right user answered
     elif chat_state == AWAIT_INPUT and chat_context == user_id:
+        # this is unfinished (needs a line of code)
 
-
+def getToken(fileName='TOKEN.txt'):
+    with open(fileName, 'r') as f:
+        tokenStr = f.read()
+    return tokenStr
 
 
 if __name__ == '__main__':
