@@ -20,7 +20,7 @@ class BonkieBot:
         self.db = dataset.connect(db_name)
         self.state = self.db['state']
         self.context = self.db['context']
-        self.values = self.db[]
+        self.values = self.db['values']
 
         self.updater = Updater(token=token)
         self.dispatcher = self.updater.dispatcher
