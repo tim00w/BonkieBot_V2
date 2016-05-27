@@ -1,75 +1,262 @@
-import logging
+"""
+use python structures:
+- assert
+- hash (or hashlib)
+- logging (create custom logger)
+- dataset (easy sql connectivity)
+* some form of testing library
+
+
+"""
+
+
+# IMPORTS
+
+
 from telegram import Emoji, ForceReply, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import dataset
+from delorean import Delorean
 import logging
+import dataset
+import tokens
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-TOKEN = getToken()
+# CONSTANTS
 
+
+LOGGER = logging.getLogger()
+TOKEN = tokens.BonkieBot
+
+
+# CLASSES
+
+
+class Oefening:
+
+    def __init__(self, naam):
+        """
+        DocString
+        """
+        self.naam = naam
+        self.series = []
+        self.opmerking = []
+        
+    def __str__(self):
+        return "{}\n{}\n\n{}"
+    
+    def nieuwe_set(self, reps, gewicht):
+        """
+        DocString
+        """
+        self.series.append(Set(reps, gewicht))
+        
+
+    def opmerking(self, tekst):
+        """
+        DocString
+        """
+        self.opmerking.append(tekst)
+        
+
+class SuperSet:
+    
+    def __init__():
+        """
+        DocString
+        """
+        return
+
+class Set:
+    
+    def __init__(self, herhalingen, gewicht):
+        """
+        DocString
+        """
+        self.herhalingen = herhalingen
+        self.gewicht = gewicht
+        
+        
+    def __str__(self):
+        return 'SET'
+    
+    def __repr__(self):
+        return "Set class: ({}, {})".format(self.herhalingen, self.gewicht)
+
+class Training:
+    
+    def __init__():
+        """
+        DocString
+        """
+        return
 
 class BonkieBot:
-    def __init__(self, token=TOKEN, db_name='sqlite:///BonkieBot.db'):
+    """
+    DocString
+    """
+    def __init__(self, logger=LOGGER, token=TOKEN, dbName='sqlite:///BonkieBot.db'):
         """
-
-        :type db_name: string
+        DocString
         """
-
-        self.db = dataset.connect(db_name)
-        self.state = self.db['state']
-        self.context = self.db['context']
-        self.values = self.db['values']
-
+        assert type(token) is str, "Token is not a str: {}".format(token)
+        assert type(dbName) is str, "dbName is not a str: {}".format(dbName)
+        
+        self.logger = logger
+        self.db = dataset.connect(dbName)
+        
         self.updater = Updater(token=token)
         self.dispatcher = self.updater.dispatcher
+    
+    def addHandlers(self, handlers):
+    """
+    method: 
+            addHandlers(self, handlers)
+    input:
+            Variable 'Handlers' is a list, containing one or more tuples with 3 fields: 
+            (command, function, require_args)
+    Description:
+            Combines telegram command names (/'command') with designated python functions ('function').
+            The 'require_args' variable (bool) describes whether the 'function' needs additional arguments to work.
+            Telegram users provide these adittional variables (/'command' <arguments>).
+    Output:
+            None
+    """
+    assert type(handlers) is list, "'{}' is not a list of handlers.".format(handlers)
+    assert len(handlers) > 0, "Handlers is an empty list: {}".format(handlers)
+    assert type(handlers[0]) is tuple, "Handlers doesn't contain tuples: {}".format(handlers[0])
+    
+    for command, function, require_args in handlers:
+        handler = CommandHandler(command, function, pass_args=require_args)
+        self.dispatcher.add_handler(handler)
 
-        # handlers
-        self.start_handler = CommandHandler('start', start)
-        self.dispatcher.add_handler(self.start_handler)
-        self.echo_handler = MessageHandler([Filters.text], echo)
-        self.dispatcher.add_handler(self.echo_handler)
-        self.caps_handler = CommandHandler('caps', caps, pass_args=True)
-        self.dispatcher.add_handler(self.caps_handler)
 
-        # tell updater to start working
-        self.updater.start_polling()
+# FUNCTIONS
+
 
 def start(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
+    """
+    DocString
+    """
+    return
 
-def echo(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text=update.message.text)
+def help(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-def caps(bot, update, args):
-    text_caps = ' '.join(args).upper()
-    bot.sendMessage(chat_id=update.message.chat_id, text=text_caps)
+def vorige(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-def set_value(bot, update):
-    chat_id = update.message.chat_id
-    user_id = update.message.from_user.id
-    text = update.message.text
-    chat_state = state.get(chat_id, None)
+def begin(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-    # since the handler will also be called on messages, we need to check if the message is actually a command
-    if chat_state == MENU and text[0] == '/'
-        state[chat_id] = AWAIT_INPUT # set the state
-        context[chat_id] = user_id # save the user id to context
-        bot.sendMessate(chat_id=chat_id,
-                        text="Please enter your settings value or send "
-                        "/cancel to abort",
-                        reply_markup=ForceReply())
+def einde(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-    # if we are waiting for input and the right user answered
-    elif chat_state == AWAIT_INPUT and chat_context == user_id:
-        # this is unfinished (needs a line of code)
+def sql(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-def getToken(fileName='TOKEN.log'):
-    with open(fileName, 'r') as f:
-        tokenStr = f.read()
-    return tokenStr
+def max(bot, update, args):
+    """
+    DocString
+    """
+    return
 
+def beginTraining(bot, update, args):
+    """
+    DocString
+    """
+    return
 
-if __name__ == '__main__':
-    bot = BonkieBot()
+def beginTraining(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def eindeTraining(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def vorigeTraining(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def annuleer(bot, update):
+    """
+    DocString
+    """
+    return
+
+def verwijder(bot, update):
+    """
+    DocString
+    """
+    return
+
+def wijzig(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def schema(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def eenRm(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def zoek(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def authoriseer(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def grafiek(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def gewicht(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def hartslag(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+def slaap(bot, update, args):
