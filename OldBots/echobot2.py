@@ -3,34 +3,28 @@
 #
 # Simple Bot to reply to Telegram messages
 # This program is dedicated to the public domain under the CC0 license.
-
 """
 This Bot uses the Updater class to handle the bot.
 First, a few handler functions are defined. Then, those functions are passed to
 the Dispatcher and registered at their respective places.
 Then, the bot is started and runs until we press Ctrl-C on the command line.
 Usage:
-Basic inline bot example. Applies different text transformations.
+Basic Echobot example, repeats messages.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-from uuid import uuid4
 
-import re
-
-from telegram import InlineQueryResultArticle, ParseMode, \
-    InputTextMessageContent
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
-
-TOKEN = '192950506:AAH82PqBpMS2iISI2PZ3d9b3rF_00cnGzGc'
+import tokens
 
 # Enable logging
-logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+TOKEN = tokens.BonkieBot
 
 
 # Define a few command handlers. These usually take the two arguments bot and
@@ -43,36 +37,8 @@ def help(bot, update):
     bot.sendMessage(update.message.chat_id, text='Help!')
 
 
-def escape_markdown(text):
-    """Helper function to escape telegram markup symbols"""
-    escape_chars = '\*_`\['
-    return re.sub(r'([%s])' % escape_chars, r'\\\1', text)
-
-
-def inlinequery(bot, update):
-    query = update.inline_query.query
-    results = list()
-
-    results.append(InlineQueryResultArticle(
-            id=uuid4(),
-            title="Caps",
-            input_message_content=InputTextMessageContent(query.upper())))
-
-    results.append(InlineQueryResultArticle(
-            id=uuid4(),
-            title="Bold",
-            input_message_content=InputTextMessageContent(
-                "*%s*" % escape_markdown(query),
-                parse_mode=ParseMode.MARKDOWN)))
-
-    results.append(InlineQueryResultArticle(
-            id=uuid4(),
-            title="Italic",
-            input_message_content=InputTextMessageContent(
-                "_%s_" % escape_markdown(query),
-                parse_mode=ParseMode.MARKDOWN)))
-
-    bot.answerInlineQuery(update.inline_query.id, results=results)
+def echo(bot, update):
+    bot.sendMessage(update.message.chat_id, text=update.message.text)
 
 
 def error(bot, update, error):
@@ -80,7 +46,7 @@ def error(bot, update, error):
 
 
 def main():
-    # Create the Updater and pass it your bot's token.
+    # Create the EventHandler and pass it your bot's token.
     updater = Updater(TOKEN)
 
     # Get the dispatcher to register handlers
@@ -91,7 +57,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(InlineQueryHandler(inlinequery))
+    dp.add_handler(MessageHandler([Filters.text], echo))
 
     # log all errors
     dp.add_error_handler(error)
@@ -99,10 +65,11 @@ def main():
     # Start the Bot
     updater.start_polling()
 
-    # Block until the user presses Ctrl-C or the process receives SIGINT,
+    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
+
 
 if __name__ == '__main__':
     main()
