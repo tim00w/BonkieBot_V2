@@ -1,2 +1,6 @@
 *.log
+*.db
 tokens.py
+.idea/vcs.xml
+.idea/workspace.xml
+~$SQL table designs.xlsx

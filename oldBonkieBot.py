@@ -12,7 +12,7 @@ TOKEN = tokens.BonkieBot
 
 
 class BonkieBot:
-    def __init__(self, token=TOKEN, db_name='sqlite:///BonkieBot.db'):
+    def __init__(self, token=TOKEN, db_name='sqlite:///BonkieBot.database'):
         """
 
         :type db_name: string

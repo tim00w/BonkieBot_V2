@@ -2,10 +2,11 @@ import dataset
 import sqlalchemy
 
 # CONSTANTS
-SYSADMIN = 'sysadmin'
-ADMIN = 'admin'
-TRAINER = 'trainer'
-GEBRUIKER = 'gebruiker'
+
+ACCOUNT = dict(SYSADMIN = 50,
+                ADMIN = 30,
+                TRAINER = 20,
+                GEBRUIKER = 10)
 
 TRAINING_TABLE_NAME = 'training'
 GEBRUIKERS_TABLE_NAME = 'gebruikers'
@@ -38,27 +39,40 @@ SCHEMA_NAAM = 'schema_naam'
 SCHEMA_WAARDE = 'schema_waarde'
 ACCOUNT = 'account'
 
-# CREATE DATABASE
+# FUNCTIONS  # TODO: create functions to handle database access
 
-dbName = 'TestBonkieBot.db'
+# CREATE DATABASE  #TODO: make it possible to import database creation from other file (function? class?)
+
+dbName= 'TestBonkieBot.db'
 
 db = dataset.connect('sqlite:///{}'.format(dbName))
 
-# CREATE TABLES
+# CREATE TABLES  # TODO: create logs/ errors tables
 
 db.create_table(TRAINING_TABLE_NAME, primary_id='row_id', primary_type='Integer')
-training = db[TRAINING_TABLE_NAME]
-
 db.create_table(GEBRUIKERS_TABLE_NAME, primary_id='row_id', primary_type='Integer')
-gebruikers = db['gebruikers']
-
 db.create_table(FITNESS_TABLE_NAME, primary_id='row_id', primary_type='Integer')
-fitness = db[FITNESS_TABLE_NAME]
-
 db.create_table(SCHEMA_TABLE_NAME, primary_id='row_id', primary_type='Integer')
+
+training = db[TRAINING_TABLE_NAME]
+gebruikers = db[GEBRUIKERS_TABLE_NAME]
+fitness = db[FITNESS_TABLE_NAME]
 schema = db[SCHEMA_TABLE_NAME]
 
 # CREATE COLUMNS FOR EACH TABLE
+
+training.create_column(GEBRUIKER_ID, sqlalchemy.String)
+training.create_column(TRAINING_ID, sqlalchemy.String)
+training.create_column(SCHEMA_ID, sqlalchemy.String)
+training.create_column(OEFENING_ID, sqlalchemy.String)
+training.create_column(DATUMTIJD, sqlalchemy.DateTime)
+training.create_column(TIJDZONE, sqlalchemy.String)
+training.create_column(OEFENING_NAAM, sqlalchemy.String)
+training.create_column(OEFENING_TEMPO, sqlalchemy.String)
+training.create_column(OEFENING_REPS, sqlalchemy.INT)
+training.create_column(OEFENING_GEWICHT, sqlalchemy.FLOAT)
+training.create_column(GEWICHT_EENHEID, sqlalchemy.String)
+training.create_column(OPMERKING, sqlalchemy.BLOB)
 
 gebruikers.create_column(GEBRUIKER_ID, sqlalchemy.String)
 gebruikers.create_column(TELEGRAM_CODE, sqlalchemy.String)

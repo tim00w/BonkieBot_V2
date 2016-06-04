@@ -15,6 +15,9 @@ use python structures:
 from telegram import Emoji, ForceReply, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from delorean import Delorean
+from pprint import pformat
+import sqlitedatabase as db
+import datetime
 import logging
 import dataset
 import tokens
@@ -23,10 +26,12 @@ import tokens
 # CONSTANTS
 
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger()  # TODO: find out best way to log info
+
 TOKEN = tokens.BonkieBot
 
-
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
 # CLASSES
 
 
@@ -34,50 +39,77 @@ class BonkieBot:
     """
     DocString
     """
-    def __init__(self, logger=LOGGER, token=TOKEN, dbName='sqlite:///BonkieBot.db'):
+    def __init__(self, logger=LOGGER, token=TOKEN, dbName='TestBonkieBot.db'):
         """
         DocString
         """
         assert type(token) is str, "Token is not a str: {}".format(token)
         assert type(dbName) is str, "dbName is not a str: {}".format(dbName)
-        
+
+        self.token = token
         self.logger = logger
-        self.db = dataset.connect(dbName)
+        self.database = dataset.connect('sqlite:///{}'.format(dbName))
+
+        self.training = self.database['training']
+        self.gebruikers = self.database['gebruikers']
+        self.fitness = self.database['fitness']
+        self.schema = self.database['schema']
         
         self.updater = Updater(token=token)
         self.dispatcher = self.updater.dispatcher
     
     def addHandlers(self, handlers):
-    """
-    method: 
-            addHandlers(self, handlers)
-    input:
-            Variable 'Handlers' is a list, containing one or more tuples with 3 fields: 
-            (command, function, require_args)
-    Description:
-            Combines telegram command names (/'command') with designated python functions ('function').
-            The 'require_args' variable (bool) describes whether the 'function' needs additional arguments to work.
-            Telegram users provide these adittional variables (/'command' <arguments>).
-    Output:
-            None
-    """
-    assert type(handlers) is list, "'{}' is not a list of handlers.".format(handlers)
-    assert len(handlers) > 0, "Handlers is an empty list: {}".format(handlers)
-    assert type(handlers[0]) is tuple, "Handlers doesn't contain tuples: {}".format(handlers[0])
+        """
+        method:
+                addHandlers(self, handlers)
+        input:
+                Variable 'Handlers' is a list, containing one or more tuples with 3 fields:
+                (command, function, require_args)
+        Description:
+                Combines telegram command names (/'command') with designated python functions ('function').
+                The 'require_args' variable (bool) describes whether the 'function' needs additional arguments to work.
+                Telegram users provide these adittional variables (/'command' <arguments>).
+        Output:
+                None
+        """
+
     
-    for command, function, require_args in handlers:
-        handler = CommandHandler(command, function, pass_args=require_args)
-        self.dispatcher.add_handler(handler)
+        for command, function, require_args in handlers:
+            handler = CommandHandler(command, function, pass_args=require_args)
+            self.dispatcher.add_handler(handler)
+
+    def start(self, bot, update):
+        """
+        DocString
+        """
+        message = update.message.to_dict()
+
+        chat_id = message['chat']['id']
+        first_name = message['chat']['first_name']
+        last_name = message['chat']['last_name']
+        date = datetime.datetime.utcfromtimestamp(message['date'])
+
+        gebruiker_id = hash(str(chat_id) + self.token)
+
+        t = self.gebruikers
+        gebruiker_data = {db.GEBRUIKER_ID: str(gebruiker_id),
+                          db.TELEGRAM_CODE: chat_id,
+                          db.VOORNAAM: first_name,
+                          db.ACHTERNAAM: last_name,
+                          db.DATUMTIJD: date}
+        t.insert(gebruiker_data)
+
+
+
+        bot.sendMessage(chat_id, text='Hi {}!\n\n I am a Telegram-bot!'.format(first_name))
+        logging.debug(pformat(update.message.to_dict()))
+
+
 
 
 # FUNCTIONS
 
 
-def start(bot, update):
-    """
-    DocString
-    """
-    return
 
 def help(bot, update, args):
     """
@@ -110,12 +142,6 @@ def sql(bot, update, args):
     return
 
 def max(bot, update, args):
-    """
-    DocString
-    """
-    return
-
-def beginTraining(bot, update, args):
     """
     DocString
     """
@@ -200,3 +226,13 @@ def hartslag(bot, update, args):
     return
 
 def slaap(bot, update, args):
+    """
+    DocString
+    """
+    return
+
+if __name__ == '__main__':
+    BBot = BonkieBot()
+    BBot.addHandlers([('start', BBot.start, False)])
+    BBot.updater.start_polling()
+    BBot.updater.idle()
