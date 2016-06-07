@@ -14,9 +14,9 @@ use python structures:
 
 from telegram import Emoji, ForceReply, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import postgresqldatabase as pdb
 from delorean import Delorean
 from pprint import pformat
-import sqlitedatabase as db
 import datetime
 import logging
 import dataset
@@ -30,6 +30,7 @@ LOGGER = logging.getLogger()  # TODO: find out best way to log info
 
 TOKEN = tokens.BonkieBot
 
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 # CLASSES
@@ -39,16 +40,15 @@ class BonkieBot:
     """
     DocString
     """
-    def __init__(self, logger=LOGGER, token=TOKEN, dbName='TestBonkieBot.db'):
+    def __init__(self, logger=LOGGER, token=TOKEN, enginestr=pdb.engineStr):
         """
         DocString
         """
         assert type(token) is str, "Token is not a str: {}".format(token)
-        assert type(dbName) is str, "dbName is not a str: {}".format(dbName)
 
         self.token = token
         self.logger = logger
-        self.database = dataset.connect('sqlite:///{}'.format(dbName))
+        self.database = dataset.connect(enginestr)
 
         self.training = self.database['training']
         self.gebruikers = self.database['gebruikers']
@@ -92,12 +92,15 @@ class BonkieBot:
         gebruiker_id = hash(str(chat_id) + self.token)
 
         t = self.gebruikers
-        gebruiker_data = {db.GEBRUIKER_ID: str(gebruiker_id),
-                          db.TELEGRAM_CODE: chat_id,
-                          db.VOORNAAM: first_name,
-                          db.ACHTERNAAM: last_name,
-                          db.DATUMTIJD: date}
-        t.insert(gebruiker_data)
+        gebruiker_data = {pdb.GEBRUIKER_ID: str(gebruiker_id),
+                          pdb.TELEGRAM_CODE: chat_id,
+                          pdb.VOORNAAM: first_name,
+                          pdb.ACHTERNAAM: last_name,
+                          pdb.DATUMTIJD: date}
+
+        if t.find_one(gebruiker_id=gebruiker_id) is None:
+            t.insert(gebruiker_data)
+            # log something
 
 
 
