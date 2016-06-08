@@ -5,3 +5,4 @@ tokens.py
 .idea/workspace.xml
 ~$SQL table designs.xlsx
 config.py
+# TODO: reconfigure .gitignore file
