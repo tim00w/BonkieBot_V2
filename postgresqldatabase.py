@@ -1,10 +1,11 @@
 import dataset
 import sqlalchemy
-from sqlalchemy.dialects import postgresql  # TODO: replace
+# from sqlalchemy.dialects import postgresql
+# TODO: replace sqlalchemy standard variable definition with postgresql compatible definitions
 
 # CONSTANTS
 
-ACCOUNT = dict(SYSADMIN = 50,
+ACCOUNTS = dict(SYSADMIN = 50,
                 ADMIN = 30,
                 TRAINER = 20,
                 GEBRUIKER = 10)

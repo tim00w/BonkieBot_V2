@@ -20,19 +20,18 @@ from pprint import pformat
 import datetime
 import logging
 import dataset
-import tokens
-
+# TODO: import tokens & dbSettings from config file (config.py?)
 
 # CONSTANTS
 
 
-LOGGER = logging.getLogger()  # TODO: find out best way to log info
+log = logging.getLogger()  # TODO: find out best way to log info
 
-TOKEN = tokens.BonkieBot
+TOKEN = tokens.BonkieBot # TODO: use other source for tokens
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+log.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+
 # CLASSES
 
 
@@ -40,20 +39,19 @@ class BonkieBot:
     """
     DocString
     """
-    def __init__(self, logger=LOGGER, token=TOKEN, enginestr=pdb.engineStr):
+    def __init__(self, token=TOKEN, enginestr=pdb.engineStr):
         """
         DocString
         """
         assert type(token) is str, "Token is not a str: {}".format(token)
 
         self.token = token
-        self.logger = logger
-        self.database = dataset.connect(enginestr)
+        self.database = dataset.connect(enginestr)  # TODO: perhaps use a database class? (look for in sqlalchemy)
 
-        self.training = self.database['training']
-        self.gebruikers = self.database['gebruikers']
-        self.fitness = self.database['fitness']
-        self.schema = self.database['schema']
+        self.training = self.database['training']  # TODO: perhaps use a table class? (look for in sqlalchemy)
+        self.gebruikers = self.database['gebruikers']  # TODO: perhaps use a table class? (look for in sqlalchemy)
+        self.fitness = self.database['fitness']  # TODO: perhaps use a table class? (look for in sqlalchemy)
+        self.schema = self.database['schema']  # TODO: perhaps use a table class? (look for in sqlalchemy)
         
         self.updater = Updater(token=token)
         self.dispatcher = self.updater.dispatcher
@@ -73,10 +71,10 @@ class BonkieBot:
                 None
         """
 
-    
         for command, function, require_args in handlers:
             handler = CommandHandler(command, function, pass_args=require_args)
-            self.dispatcher.add_handler(handler)
+            self.dispatcher.add_handler(handler)  # TODO: find out whether a list of added commands get saved
+            # TODO: add help text (both short and long) to some variable that can be used by the 'help' command
 
     def start(self, bot, update):
         """
@@ -100,25 +98,30 @@ class BonkieBot:
 
         if t.find_one(gebruiker_id=gebruiker_id) is None:
             t.insert(gebruiker_data)
-            # log something
+            # TODO: log something
+        message_template = 'Hi {}!\n\n I am a Telegram-bot!'
+        bot_message = message_template.format(first_name)
+        bot.sendMessage(chat_id, text=bot_message)
+        log.debug(pformat(update.message.to_dict()))
+        return
+
+    def help(self, bot, update, args):
+        """
+        DocString
+        """
+        template = "The following commands are present:\n{}"
+        if args is None:
+            bot_message = template.format('commandAndHalp')  # TODO: use command help files
+        elif args in ['start', 'help']:  # TODO: use commands list
+            bot_message = '{}'.format('commandAndHalp')  # TODO: use command help files
+        else:
+            bot_message = "That command isn't present.\n\n{}".format(template.format('commandAndHalp'))  # TODO: use command help files
+        bot.sendMessage(update.message.chat_id, bot_message)
+        return
 
 
+# FUNCTIONS  # TODO: implement functions
 
-        bot.sendMessage(chat_id, text='Hi {}!\n\n I am a Telegram-bot!'.format(first_name))
-        logging.debug(pformat(update.message.to_dict()))
-
-
-
-
-# FUNCTIONS
-
-
-
-def help(bot, update, args):
-    """
-    DocString
-    """
-    return
 
 def vorige(bot, update, args):
     """
@@ -236,6 +239,6 @@ def slaap(bot, update, args):
 
 if __name__ == '__main__':
     BBot = BonkieBot()
-    BBot.addHandlers([('start', BBot.start, False)])
+    BBot.addHandlers([('start', BBot.start, False), ('help', BBot.help, True)])
     BBot.updater.start_polling()
     BBot.updater.idle()
