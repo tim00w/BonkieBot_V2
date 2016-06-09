@@ -15,22 +15,25 @@ use python structures:
 from telegram import Emoji, ForceReply, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import postgresqldatabase as pdb
-from delorean import Delorean
+from delorean import Delorean  # TODO: check if i really need this, message also includes date + time
 from pprint import pformat
 import datetime
 import logging
 import dataset
+import tokens
 # TODO: import tokens & dbSettings from config file (config.py?)
 
 # CONSTANTS
 
 
-log = logging.getLogger()  # TODO: find out best way to log info
+# log = logging.getLogger(__name__)  # TODO: find out best way to log info (replace 'logging' with custom 'log')
+# log.setLevel(logging.DEBUG)
+# log.
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 TOKEN = tokens.BonkieBot # TODO: use other source for tokens
 
 
-log.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 # CLASSES
 
@@ -79,7 +82,7 @@ class BonkieBot:
     def start(self, bot, update):
         """
         DocString
-        """
+        """  # TODO: use docstring as a guide for help function (start.__doc__)
         message = update.message.to_dict()
 
         chat_id = message['chat']['id']
@@ -102,13 +105,13 @@ class BonkieBot:
         message_template = 'Hi {}!\n\n I am a Telegram-bot!'
         bot_message = message_template.format(first_name)
         bot.sendMessage(chat_id, text=bot_message)
-        log.debug(pformat(update.message.to_dict()))
+        logging.debug(pformat(update.message.to_dict()))  # TODO: change logging to custom log
         return
 
     def help(self, bot, update, args):
         """
         DocString
-        """
+        """  # TODO: use DocString as guide for help function
         template = "The following commands are present:\n{}"
         if args is None:
             bot_message = template.format('commandAndHalp')  # TODO: use command help files
