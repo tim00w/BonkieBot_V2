@@ -81,7 +81,9 @@ class BonkieBot:
 
     def start(self, bot, update):
         """
-        DocString
+        says hi!
+
+        says hi!  to the person speaking to him (and call him by his name).
         """  # TODO: use docstring as a guide for help function (start.__doc__)
         message = update.message.to_dict()
 
